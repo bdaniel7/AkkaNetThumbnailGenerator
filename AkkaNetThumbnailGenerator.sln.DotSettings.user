@@ -1,0 +1,15 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6d4b42e9_002D19cc_002D4492_002Dbef6_002De7796839e17b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="WithChannelExtensions" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithChannelExtensions&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithChannels&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithoutChannels.RunWithoutChannelsAsync&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithActors.RunWithActors&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f894e034_002D9c9a_002D4288_002Da51a_002D29d474a6b019/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="WithChannelExtensions #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithChannelExtensions&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::A7158E17-B2FB-4817-84E6-81BB16343EC8::.NETCoreApp,Version=v3.1::AkkaNetThumbnailGenerator.WithActors.RunWithActors&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
