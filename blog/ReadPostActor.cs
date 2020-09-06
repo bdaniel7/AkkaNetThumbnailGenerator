@@ -29,6 +29,8 @@ namespace AkkaNetThumbnailGenerator
 
 		void handleReadPostMessage(ReadNextPost readNextPost)
 		{
+			//FluentConsole.Blue.Line($"reading post {readNextPost.PostPath}");
+
 			var frontMatterYaml = File.ReadAllText(readNextPost.PostPath);
 			if (frontMatterYaml == null) return;
 

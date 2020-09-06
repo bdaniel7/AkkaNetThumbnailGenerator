@@ -10,11 +10,11 @@ namespace AkkaNetThumbnailGenerator
 	/// </summary>
 	public class WriteImageActor : ReceiveActor
 	{
-		readonly ActorSelection startReadingPostsActor;
+		readonly ActorSelection coordinatorActor;
 
 		public WriteImageActor()
 		{
-			startReadingPostsActor = Context.System.ActorSelection("/user/startReadingPostsActor");
+			coordinatorActor = Context.System.ActorSelection("/user/startReadingPostsActor");
 
 			Receive<WriteImage>(handleWriteImageMessage);
 		}
@@ -45,14 +45,16 @@ namespace AkkaNetThumbnailGenerator
 
 		void handleWriteImageMessage(WriteImage writeImage)
 		{
+			//FluentConsole.Red.Line($"writing image {writeImage.FileName}");
+
 			using (var outputStream = File.OpenWrite(Path.Combine(Constants.OutputDirectory, writeImage.FileName)))
 			{
 				writeImage.Image.Save(outputStream, PngFormat.Instance);
 			}
 
-			writeImage.Image.Dispose();
+			writeImage.Image?.Dispose();
 
-			startReadingPostsActor.Tell(new ReadPostActor.ReadNextPost(writeImage.PostPath));
+			coordinatorActor.Tell(new DoneWritingImage(writeImage.PostPath));
 		}
 	}
 }

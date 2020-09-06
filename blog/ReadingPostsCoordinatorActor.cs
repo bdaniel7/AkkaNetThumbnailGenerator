@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Akka.Actor;
 using Akka.Routing;
@@ -11,125 +12,67 @@ namespace AkkaNetThumbnailGenerator
 	/// </summary>
 	public class ReadingPostsCoordinatorActor : ReceiveActor
 	{
+		const int NR_OF_INSTANCES = 40;
 		public IDeserializer YamlDeserializer { get; }
 		public HashSet<string> PostPaths { get; }
 		IActorRef readPostActor;
+		int processedFiles;
+		readonly Stopwatch stopwatch;
+		readonly int totalPosts;
+
+		public class ReadNextBatchOfPosts { }
 
 		public ReadingPostsCoordinatorActor(IDeserializer yamlDeserializer, string[] postPaths)
 		{
 			YamlDeserializer = yamlDeserializer;
 			PostPaths = postPaths.ToHashSet();
-
+			totalPosts = postPaths.Length;
 			initialize();
+
+			stopwatch = new Stopwatch();
+			stopwatch.Start();
 		}
 
 		/// <inheritdoc />
 		protected override void PreStart()
 		{
 			readPostActor = Context.ActorOf(Props.Create<ReadPostActor>(YamlDeserializer)
-			                                     .WithRouter(new RoundRobinPool(20)), "readPost");
-
+			                                     .WithRouter(new RoundRobinPool(NR_OF_INSTANCES)), "readPost");
 		}
 
 		void initialize()
 		{
-			Receive<StartReadingPosts>(sr => { handleReceiveStart(); });
-			Receive<ReadPostActor.ReadNextPost>(handleReceiveReadPost);
-			//Receive<WriteImageActor.DoneWritingImage>(handleFinishedReadingOnePost);
+			Receive<ReadNextBatchOfPosts>(sr => { handleReadNextBatchOfPosts(); });
+			Receive<WriteImageActor.DoneWritingImage>(handleDoneWritingImage);
 		}
 
-		void handleReceiveStart()
+		void handleReadNextBatchOfPosts()
 		{
-			var postPath = PostPaths.First();
-			var readFirstPost = new ReadPostActor.ReadNextPost(postPath);
+			var postPaths = PostPaths.Take(NR_OF_INSTANCES);
 
-			readPostActor.Tell(readFirstPost);
-
-			PostPaths.Remove(readFirstPost.PostPath);
-		}
-
-		void handleReceiveReadPost(ReadPostActor.ReadNextPost readPost)
-		{
-			// var props = Props.Create<ReadPostActor>(YamlDeserializer);
-			// var readOnePostActor = Context.ActorOf(props);
-
-			if (PostPaths.Count > 0)
+			foreach (var postPath in postPaths)
 			{
-				var postPath = PostPaths.Take(1).Single();
-				var readNextPost = new ReadPostActor.ReadNextPost(postPath);
+				var readFirstPost = new ReadPostActor.ReadNextPost(postPath);
 
-				readPostActor.Tell(readNextPost);
-
-				PostPaths.Remove(readPost.PostPath);
-
+				readPostActor.Tell(readFirstPost);
 			}
 		}
 
-		// void handleFinishedReadingOnePost(WriteImageActor.DoneWritingImage finishedReading)
-		// {
-		// 	//Console.WriteLine($"finishedReadingMessage {finishedReadingMessage.PostPath}");
-		// 	PostPaths.Remove(finishedReading.PostPath);
-		//
-		// 	var postPath = PostPaths.Take(1).Single();
-		// 	var readNextPost = new ReadPostActor.ReadNextPost(postPath);
-		//
-		// 	Context.System.Scheduler.ScheduleTellOnce(0,
-		// 			Self,
-		// 			readNextPost,
-		// 			Self);
-		// }
+		void handleDoneWritingImage(WriteImageActor.DoneWritingImage doneWritingImage)
+		{
+			PostPaths.Remove(doneWritingImage.PostPath);
+			processedFiles++;
 
-		public class StartReadingPosts { }
+			if (processedFiles % NR_OF_INSTANCES == 0)
+			{
+				Self.Tell(new ReadNextBatchOfPosts());
+			}
 
-
-
-		// /// <inheritdoc />
-		// protected override void OnReceive(object message)
-		// {
-		// 	if (message is StartReadingPostsMessage startReadingPostsMessage)
-		// 	{
-		// 		var postPath = PostPaths.First();
-		// 		var readFirstPostMessage = new ReadOnePostActor.ReadPostMessage(postPath);
-		//
-		// 		Context.System.Scheduler.ScheduleTellOnce(0,
-		// 				Self,
-		// 				readFirstPostMessage,
-		// 				Self);
-		// 	}
-		//
-		// 	if (message is ReadOnePostActor.ReadPostMessage readPostMessage)
-		// 	{
-		// 		var props = Props.Create<ReadOnePostActor>(YamlDeserializer);
-		// 		var readOnePostActor = Context.ActorOf(props);
-		// 		readOnePostActor.Tell(readPostMessage);
-		//
-		// 		PostPaths.Remove(readPostMessage.PostPath);
-		//
-		// 		if (PostPaths.Count > 0)
-		// 		{
-		// 			var postPath = PostPaths.Take(1).Single();
-		// 			var readNextPostMessage = new ReadOnePostActor.ReadPostMessage(postPath);
-		//
-		// 			Context.System.Scheduler.ScheduleTellOnce(0,
-		// 					Self,
-		// 					readNextPostMessage,
-		// 					Self);
-		// 		}
-		// 	}
-		//
-		// 	if (message is ReadOnePostActor.FinishedReadingOnePostMessage finishedReadingMessage)
-		// 	{
-		// 		//Console.WriteLine($"finishedReadingMessage {finishedReadingMessage.PostPath}");
-		// 		PostPaths.Remove(finishedReadingMessage.PostPath);
-		//
-		// 		var postPath = PostPaths.Take(1).Single();
-		// 		var readNextPostMessage = new ReadOnePostActor.ReadPostMessage(postPath);
-		//
-		// 		Context.System.Scheduler.ScheduleTellOnce(0,
-		// 				Self,
-		// 				readNextPostMessage,
-		// 				Self);
-		// 	}
-		// }
+			if (processedFiles == totalPosts)
+			{
+				stopwatch.Stop();
+				FluentConsole.Green.Line("Completed in {0}", stopwatch.Elapsed);
+			}
+		}
 	}
 }

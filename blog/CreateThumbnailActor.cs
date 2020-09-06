@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Akka.Actor;
+using Akka.Routing;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -14,9 +15,19 @@ namespace AkkaNetThumbnailGenerator
 	/// </summary>
 	public class CreateThumbnailActor : ReceiveActor
 	{
+		const int NR_OF_INSTANCES = 40;
+		IActorRef writeImageActor;
+
 		public CreateThumbnailActor()
 		{
 			Receive<CreateThumbnail>(handleCreateThumbnail);
+		}
+
+		/// <inheritdoc />
+		protected override void PreStart()
+		{
+			writeImageActor = Context.ActorOf(Props.Create<WriteImageActor>()
+			                                       .WithRouter(new RoundRobinPool(NR_OF_INSTANCES)), "writeImage");
 		}
 
 		public class CreateThumbnail
@@ -38,6 +49,8 @@ namespace AkkaNetThumbnailGenerator
 
 		void handleCreateThumbnail(CreateThumbnail createThumbnail)
 		{
+			//FluentConsole.Yellow.Line($"creating thumbnail for {createThumbnail.PostPath}");
+
 			// Image parameters
 			var cardWidth = 876;
 			var cardHeight = 438;
@@ -71,8 +84,6 @@ namespace AkkaNetThumbnailGenerator
 					(createThumbnail.Author ?? "")
 				+ (createThumbnail.Date?.ToString(" | MMMM dd, yyyy", CultureInfo.InvariantCulture) ?? ""));
 
-
-			var writeImageActor = Context.ActorOf(Props.Create<WriteImageActor>());
 
 			writeImageActor.Tell(new WriteImageActor.WriteImage(cardImage, createThumbnail.PostPath));
 		}

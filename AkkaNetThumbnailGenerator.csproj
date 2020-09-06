@@ -7,7 +7,8 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Akka" Version="1.4.10" />
-	  <PackageReference Include="morelinq" Version="3.3.2" />
+	  <PackageReference Include="Akka.Serialization.Hyperion" Version="1.4.10" />
+	  <PackageReference Include="FluentConsole" Version="0.8.4-netstandard-160712" />
 	  <PackageReference Include="Open.ChannelExtensions" Version="3.5.0" />
 	  <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0013" />
 	  <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
@@ -32,6 +33,18 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	  <None Remove="AkkaNetThumbnailGenerator.csproj.DotSettings" />
+	  <None Remove="_posts\**" />
+	  <None Remove="out\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="_posts\**" />
+	  <Compile Remove="out\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="_posts\**" />
+	  <EmbeddedResource Remove="out\**" />
 	</ItemGroup>
 
 </Project>

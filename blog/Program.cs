@@ -12,9 +12,6 @@ namespace AkkaNetThumbnailGenerator
 	{
 		static void Main(string[] args)
 		{
-			var stopwatch = new Stopwatch();
-			stopwatch.Start();
-
 			var config = ConfigurationFactory.ParseString(File.ReadAllText("akkaconfig.hocon"));
 
 			using (ActorSystem system = ActorSystem.Create("ThumbnailGenerator", config))
@@ -29,13 +26,10 @@ namespace AkkaNetThumbnailGenerator
 				var startReadingPosts = system.ActorOf(Props.Create<ReadingPostsCoordinatorActor>(yamlDeserializer, postPaths),
 																											"startReadingPostsActor");
 
-				startReadingPosts.Tell(new ReadingPostsCoordinatorActor.StartReadingPosts());
+				startReadingPosts.Tell(new ReadingPostsCoordinatorActor.ReadNextBatchOfPosts());
 
 				Console.ReadKey(true);
 				system.Terminate();
-
-				stopwatch.Stop();
-				Console.WriteLine("Completed in {0}", stopwatch.Elapsed);
 
 				Console.WriteLine("Stopped. Press any key to exit.");
 				Console.ReadKey(true);

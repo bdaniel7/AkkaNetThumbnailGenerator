@@ -14,14 +14,12 @@
 			  event-stream = on
 			  unhandled = on
 		}
-		deployment
-		{
-            /startReadingPostsActor
-            {
-                router = round-robin-pool
-                nr-of-instances = 20
-            }
-		}
+		serializers {
+	        hyperion = "Akka.Serialization.HyperionSerializer, Akka.Serialization.Hyperion"
+	    }
+	    serialization-bindings {
+	        "System.Object" = hyperion
+	    }
 	}
 	remote
 	{
